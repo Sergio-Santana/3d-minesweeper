@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GridGenerator : MonoBehaviour
 {
@@ -9,9 +7,9 @@ public class GridGenerator : MonoBehaviour
     public CellController[,,] cells;
 
     public const uint MINES = 2;
-    private const uint MAX_X = 5;
-    private const uint MAX_Y = 2;
-    private const uint MAX_Z = 5;
+    private const uint MAX_X = 3;
+    private const uint MAX_Y = 3;
+    private const uint MAX_Z = 3;
 
     private const float CUBE_DIMENSIONS = 1f;
     private const float SPACE_BETWEEN_CELLS = 0.1f;
@@ -38,15 +36,35 @@ public class GridGenerator : MonoBehaviour
         Vector3 cameraPosition = Camera.main.transform.position;
         Camera.main.transform.position = new Vector3(cameraPosition.x, cameraPosition.y + MAX_Y*cubeOffSet, cameraPosition.z);
 
-        StartCoroutine(PlantMines());
     }
 
-    // TODO: This coroutine is not necessary, we will start planting after the user does the first movement
-    private IEnumerator PlantMines()
+    public void PlantMines(CellController initialCell)
     {
-        yield return 0;
-        cells[0, 0, 0].hasMine = true;
-        cells[MAX_X - 1, MAX_Y - 1, MAX_Z - 1].hasMine = true;
+        for (int n = 0; n < MINES;)
+        {
+            int x = Random.Range(0, (int)MAX_X);
+            int y = Random.Range(0, (int)MAX_Y);
+            int z = Random.Range(0, (int)MAX_Z);
+            if ((initialCell.position != new Vector3(x, y, z)) && (!cells[x,y,z].hasMine))
+            {
+                cells[x, y, z].hasMine = true;
+                ++n;
+                for (int i = x-1; i <= x+1 ; ++i)
+                {
+                    if ((i < 0) || (i >= MAX_X)) continue;
 
+                    for (int j = y-1; j <= y+1 ; ++j)
+                    {
+                        if ((j < 0) || (j >= MAX_Y)) continue;
+                        for (int k = z-1; k <= z+1 ; ++k)
+                        {
+                            if ((k < 0) || (k >= MAX_Z)) continue;
+                            ++cells[i, j, k].neighbouringMines;
+
+                        }
+                    }
+                }
+            }
+        }
     }
 }

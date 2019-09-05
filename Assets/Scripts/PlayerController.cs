@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
 
     private const float cameraSpeed = 2.0f;
     private bool gameFinished = false;
+    private bool firstClick = true;
     private uint minesLeft;
 
     // TODO: Maybe this should be called deactivators, since we lose once we use one when we shouldn't
@@ -37,7 +38,7 @@ public class PlayerController : MonoBehaviour
         else if (Input.GetKey(KeyCode.S))
             translation.y = Time.deltaTime * -cameraSpeed;
 
-        translation.z =  Input.mouseScrollDelta.y;
+        translation.z = Input.mouseScrollDelta.y;
         Camera.main.transform.Translate(translation);
 
         if (!gameFinished)
@@ -51,10 +52,14 @@ public class PlayerController : MonoBehaviour
                 if (Physics.Raycast(ray, out hit))
                 {
                     CellController controller = hit.transform.GetComponent<CellController>();
+                    if (firstClick)
+                    {
+                        firstClick = false;
+                        grid.PlantMines(controller);
+                    }
                     if (leftClick)
                     {
-                        // TODO: Count how many mines are nearby. This won't work right now because of inactive cells (??)
-                        if (!controller.Reveal(1))
+                        if (!controller.Reveal())
                         {
                             endGameText.text = LOSE_TEXT;
                             gameFinished = true;
