@@ -520,6 +520,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CellPrefab: {fileID: 948293363040543942, guid: c9be8857a59870b42ac8f199e0f80673,
     type: 3}
+  gridCentre: {x: 0, y: 0, z: 0}
 --- !u!4 &1381236392
 Transform:
   m_ObjectHideFlags: 0

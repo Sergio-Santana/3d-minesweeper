@@ -7,12 +7,13 @@ public class PlayerController : MonoBehaviour
     public Text endGameText;
     public Text minesLeftText;
 
-    private const float cameraSpeed = 2.0f;
+    private const float ROTATION_LIMIT = 45.0f;
+    private const float ROTATION_SPEED = 0.3f;
+    private const float ZOOM_SPEED = 1.1f;
     private bool gameFinished = false;
     private bool firstClick = true;
     private uint minesLeft;
 
-    // TODO: Maybe this should be called deactivators, since we lose once we use one when we shouldn't
     private const string MINES_TEXT = "Mines: ";
     private const string WIN_TEXT = "YOU WON!";
     private const string LOSE_TEXT = "YOU LOST!";
@@ -24,22 +25,30 @@ public class PlayerController : MonoBehaviour
         minesLeftText.text = MINES_TEXT + minesLeft;
     }
 
+    private Vector3? lastMousePosition;
     void Update()
     {
-        Vector3 translation = Vector3.zero;
+        if(Input.GetMouseButton(2))
+        {
+            Vector3 current = Input.mousePosition;
+            Vector3 last = lastMousePosition ?? current;
+            lastMousePosition = current;
 
-        if (Input.GetKey(KeyCode.A))
-            translation.x = Time.deltaTime * -cameraSpeed;
-        else if (Input.GetKey(KeyCode.D))
-            translation.x = Time.deltaTime * cameraSpeed;
+            Vector3 difference = (last - current) * ROTATION_SPEED;
+            Camera.main.transform.RotateAround(grid.gridCentre, Vector3.up, -difference.x);
 
-        if (Input.GetKey(KeyCode.W))
-            translation.y = Time.deltaTime * cameraSpeed;
-        else if (Input.GetKey(KeyCode.S))
-            translation.y = Time.deltaTime * -cameraSpeed;
-
-        translation.z = Input.mouseScrollDelta.y;
-        Camera.main.transform.Translate(translation);
+            float verticalRotation = Camera.main.transform.rotation.eulerAngles.x;
+            
+            if (((difference.y > 0) && (verticalRotation < ROTATION_LIMIT || verticalRotation > 180.0f)) || ((difference.y < 0) && (verticalRotation > (360.0f-ROTATION_LIMIT) || verticalRotation < 180.0f)))
+            {
+                Camera.main.transform.RotateAround(grid.gridCentre, transform.TransformDirection(Vector3.right), difference.y);
+            }
+        }
+        else
+        {
+            lastMousePosition = null;
+        }
+        Camera.main.transform.Translate(Vector3.forward * Input.mouseScrollDelta.y * ZOOM_SPEED);
 
         if (!gameFinished)
         {
