@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class CellController : MonoBehaviour
 {
-    public TextMesh[] textMeshes;
+    public TextMesh interiorMesh;
 
     private Material material;
     private bool revealed = false;
@@ -23,9 +23,17 @@ public class CellController : MonoBehaviour
     {
         material = GetComponent<Renderer>().material;
 
-        foreach (TextMesh mesh in textMeshes)
-            mesh.text = "";
+        interiorMesh.text = "";
         material.color = Color.gray;
+    }
+
+    private void Update()
+    {
+        if (interiorMesh.text != "")
+        {
+            Vector3 direction = interiorMesh.transform.position - Camera.main.transform.position;
+            interiorMesh.transform.rotation = Quaternion.LookRotation(direction);
+        }
     }
 
     public bool Reveal()
@@ -47,8 +55,7 @@ public class CellController : MonoBehaviour
         }
         else
         {
-            foreach (TextMesh mesh in textMeshes)
-                mesh.text = neighbouringMines.ToString();
+            interiorMesh.text = neighbouringMines.ToString();
         }
         return true;
     }
