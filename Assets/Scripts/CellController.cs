@@ -9,29 +9,31 @@ public class CellController : MonoBehaviour
     public TextMesh top;
 
     private Material material;
-    private bool revealed, flagged;
+    private bool revealed = false;
 
-    public bool hasMine;
+    private const float fadeSpeed = 3.0f;
+    private bool fadingOut = false;
+
+    public bool hasMine = false;
     public Vector3 position;
     void Start()
     {
         material = GetComponent<Renderer>().material;
-        revealed = flagged = hasMine = false;
 
         rightSide.text = leftSide.text = top.text = "";
         material.color = Color.gray;
     }
 
-    public void Reveal(uint number = 0)
+    public bool Reveal(uint number = 0)
     {
-        if (flagged || revealed) return;
+        if (revealed) return true;
 
         revealed = true;
 
         if (hasMine)
         {
             material.color = Color.red;
-            return;
+            return false;
         }
 
 
@@ -40,13 +42,46 @@ public class CellController : MonoBehaviour
 
         rightSide.text = leftSide.text = top.text = number.ToString();
         material.color = Color.white;
+        return true;
     }
 
-    public void ToogleFlag()
+    public bool DeactivateMine()
     {
-        if (revealed) return;
+        if (revealed) return true;
 
-        flagged = !flagged;
-        material.color = flagged ? Color.yellow : Color.grey;
+        revealed = true;
+
+        if (hasMine)
+        {
+            material.color = Color.green;
+            StartFadeOut();
+        }
+        else
+        {
+            material.color = Color.red;
+        }
+
+        return hasMine;
+    }
+
+    public void StartFadeOut()
+    {
+        if (!fadingOut)
+            StartCoroutine(FadeOut());
+    }
+
+    IEnumerator FadeOut()
+    {
+        fadingOut = true;
+        for (Color color = material.color;
+            color.a > 0;
+            color.a -= Time.deltaTime * fadeSpeed)
+        {
+            material.color = color;
+            yield return null;
+        }
+
+        GetComponent<Renderer>().enabled = false;
+        GetComponent<BoxCollider>().enabled = false;
     }
 }
