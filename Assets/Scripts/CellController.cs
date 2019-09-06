@@ -9,7 +9,10 @@ public class CellController : MonoBehaviour
     private bool revealed = false;
 
     private const float fadeSpeed = 3.0f;
-    private const float transparentAlpha = 0.3f;
+    private const float transparentAlpha = 0.1f;
+
+    private readonly Color GRAY_SOLID = new Color(0.45f, 0.45f, 0.45f, 1f);
+    private readonly Color DARKGRAY_SOLID = new Color(0.2f, 0.2f, 0.2f, 1f);
     private readonly Color RED_TRANSPARENT = new Color(1, 0, 0, transparentAlpha);
     private readonly Color GREEN_TRANSPARENT = new Color(0, 1, 0, transparentAlpha);
     private readonly Color WHITE_TRANSPARENT = new Color(1, 1, 1, transparentAlpha);
@@ -24,7 +27,13 @@ public class CellController : MonoBehaviour
         material = GetComponent<Renderer>().material;
 
         interiorMesh.text = "";
-        material.color = Color.gray;
+        if (position.x == 0 || position.y == 0 || position.z == 0 ||
+            position.x == (GridGenerator.MAX_X-1) || position.y == (GridGenerator.MAX_Y-1) || position.z == (GridGenerator.MAX_Z-1))
+            material.color = DARKGRAY_SOLID;
+        else
+            material.color = GRAY_SOLID;
+
+        
     }
 
     private void Update()

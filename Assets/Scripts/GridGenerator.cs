@@ -10,9 +10,9 @@ public class GridGenerator : MonoBehaviour
     public Vector3 gridCentre;
 
     public const uint MINES = 3;
-    private const uint MAX_X = 5;
-    private const uint MAX_Y = 5;
-    private const uint MAX_Z = 5;
+    public const uint MAX_X = 5;
+    public const uint MAX_Y = 5;
+    public const uint MAX_Z = 5;
 
     private const float CUBE_DIMENSIONS = 1f;
     private const float SPACE_BETWEEN_CELLS = 0.1f;
