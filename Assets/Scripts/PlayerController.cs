@@ -3,26 +3,25 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-    public GridGenerator grid;
     public Text endGameText;
-    public Text minesLeftText;
+    public Text deactivatorsLeft;
 
     private const float ROTATION_LIMIT = 45.0f;
     private const float ROTATION_SPEED = 0.3f;
     private const float ZOOM_SPEED = 1.1f;
     private bool gameFinished = false;
     private bool firstClick = true;
-    private uint minesLeft;
+    private uint deactivators;
 
-    private const string MINES_TEXT = "Mines: ";
+    private const string MINES_TEXT = " deactivators left";
     private const string WIN_TEXT = "YOU WON!";
     private const string LOSE_TEXT = "YOU LOST!";
     private void Start()
     {
         gameFinished = false;
-        minesLeft = GridGenerator.MINES;
+        deactivators = GridGenerator.MINES;
         endGameText.text = "";
-        minesLeftText.text = MINES_TEXT + minesLeft;
+        deactivatorsLeft.text = deactivators + MINES_TEXT;
     }
 
     private Vector3? lastMousePosition;
@@ -35,13 +34,14 @@ public class PlayerController : MonoBehaviour
             lastMousePosition = current;
 
             Vector3 difference = (last - current) * ROTATION_SPEED;
-            Camera.main.transform.RotateAround(grid.gridCentre, Vector3.up, -difference.x);
+            Vector3 gridCentre = GridGenerator.GetCentre();
+            Camera.main.transform.RotateAround(gridCentre, Vector3.up, -difference.x);
 
             float verticalRotation = Camera.main.transform.rotation.eulerAngles.x;
             
             if (((difference.y > 0) && (verticalRotation < ROTATION_LIMIT || verticalRotation > 180.0f)) || ((difference.y < 0) && (verticalRotation > (360.0f-ROTATION_LIMIT) || verticalRotation < 180.0f)))
             {
-                Camera.main.transform.RotateAround(grid.gridCentre, transform.TransformDirection(Vector3.right), difference.y);
+                Camera.main.transform.RotateAround(gridCentre, transform.TransformDirection(Vector3.right), difference.y);
             }
         }
         else
@@ -64,7 +64,7 @@ public class PlayerController : MonoBehaviour
                     if (firstClick)
                     {
                         firstClick = false;
-                        grid.PlantMines(controller);
+                        GridGenerator.PlantMines(controller);
                     }
                     if (leftClick)
                     {
@@ -76,11 +76,11 @@ public class PlayerController : MonoBehaviour
                     }
                     else if (rightClick)
                     {
+                        deactivators -= 1;
                         if (controller.DeactivateMine())
                         {
-                            minesLeft -= 1;
-                            minesLeftText.text = MINES_TEXT + minesLeft;
-                            gameFinished = (minesLeft == 0);
+                            deactivatorsLeft.text = deactivators + MINES_TEXT;
+                            gameFinished = (deactivators == 0);
                             if (gameFinished)
                                 endGameText.text = WIN_TEXT;
                         }

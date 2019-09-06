@@ -320,9 +320,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e6385ee514f7884e8e19d87bc3e1ffe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grid: {fileID: 1381236391}
   endGameText: {fileID: 1795239284}
-  minesLeftText: {fileID: 1264425780}
+  deactivatorsLeft: {fileID: 1264425780}
 --- !u!1 &1041165434
 GameObject:
   m_ObjectHideFlags: 0
@@ -493,7 +492,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: 'Mines: 10'
+  m_Text: 10 deactivators left
 --- !u!222 &1264425781
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -533,7 +532,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CellPrefab: {fileID: 948293363040543942, guid: c9be8857a59870b42ac8f199e0f80673,
     type: 3}
-  gridCentre: {x: 0, y: 0, z: 0}
 --- !u!4 &1381236392
 Transform:
   m_ObjectHideFlags: 0
