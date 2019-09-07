@@ -12,7 +12,7 @@ public class GridGenerator : MonoBehaviour
     [HideInInspector]
     private Vector3 gridCentre;
 
-    public const uint MINES = 3;
+    public const uint MINES = 10;
     public const uint MAX_X = 5;
     public const uint MAX_Y = 5;
     public const uint MAX_Z = 5;

@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     private readonly Color DARK_RED = new Color(0.5f, 0f, 0f, 1f);
     private readonly Color DARK_GREEN = new Color(0f, 0.5f, 0f, 1f);
 
+    private enum MOUSE_BUTTON:int { LEFT = 0, RIGHT = 1, MIDDLE = 2 };
     private void Start()
     {
         gameState = GameState.START;
@@ -30,7 +31,7 @@ public class PlayerController : MonoBehaviour
     private Vector3? lastMousePosition;
     private void CameraMovement()
     {
-        if (Input.GetMouseButton(2))
+        if (Input.GetMouseButton((int)MOUSE_BUTTON.RIGHT))
         {
             Vector3 current = Input.mousePosition;
             Vector3 last = lastMousePosition ?? current;
@@ -58,9 +59,9 @@ public class PlayerController : MonoBehaviour
     {
         if (gameState <= GameState.ONGOING)
         {
-            bool leftClick = Input.GetMouseButtonDown(0);
-            bool rightClick = Input.GetMouseButtonDown(1);
-            if (leftClick || rightClick)
+            bool revealInput = Input.GetMouseButtonDown((int)MOUSE_BUTTON.LEFT);
+            bool deactivateInput = Input.GetMouseButtonDown((int)MOUSE_BUTTON.MIDDLE) || Input.GetKey(KeyCode.LeftControl);
+            if (revealInput || deactivateInput)
             {
                 RaycastHit hit;
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -72,14 +73,14 @@ public class PlayerController : MonoBehaviour
                         gameState = GameState.ONGOING;
                         GridGenerator.PlantMines(controller);
                     }
-                    if (leftClick)
+                    if (revealInput)
                     {
                         if (!controller.Reveal())
                         {
                             gameState = GameState.LOSE;
                         }
                     }
-                    else if (rightClick)
+                    else if (deactivateInput)
                     {
                         deactivators -= 1;
                         if (controller.DeactivateMine())
