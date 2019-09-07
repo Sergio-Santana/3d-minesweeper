@@ -23,9 +23,14 @@ public class GridGenerator : MonoBehaviour
     void Start()
     {
         if (instance == null)
+        {
+            Screen.fullScreen = false;
             instance = this;
+        }
         else
+        {
             Destroy(this);
+        }
 
         cells = new CellController[MAX_X, MAX_Y, MAX_Z];
 
@@ -50,7 +55,6 @@ public class GridGenerator : MonoBehaviour
         gridCentre = new Vector3(MAX_X, MAX_Y, MAX_Z);
         gridCentre = (gridCentre * (CUBE_DIMENSIONS + SPACE_BETWEEN_CELLS)) / 2f;
         Camera.main.transform.LookAt(gridCentre);
-
     }
 
     public static void PlantMines(CellController initialCell)
@@ -100,7 +104,6 @@ public class GridGenerator : MonoBehaviour
     public static void RevealMines()
     {
         ref CellController[,,] cells = ref instance.cells;
-
         foreach (CellController cc in cells)
         {
             cc.ShowMineContent();
@@ -110,7 +113,6 @@ public class GridGenerator : MonoBehaviour
     public static void ClearCells()
     {
         ref CellController[,,] cells = ref instance.cells;
-
         foreach (CellController cc in cells)
         {
             cc.Clear();
