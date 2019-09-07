@@ -9,25 +9,28 @@ public class PlayerController : MonoBehaviour
     private const float ROTATION_LIMIT = 45.0f;
     private const float ROTATION_SPEED = 0.3f;
     private const float ZOOM_SPEED = 1.1f;
-    private bool gameFinished = false;
-    private bool firstClick = true;
+    private enum GameState { START = 0, ONGOING, WIN, LOSE };
+    private GameState gameState = GameState.START;
     private uint deactivators;
 
     private const string MINES_TEXT = " deactivators left";
     private const string WIN_TEXT = "YOU WON!";
     private const string LOSE_TEXT = "YOU LOST!";
+    private readonly Color DARK_RED = new Color(0.5f, 0f, 0f, 1f);
+    private readonly Color DARK_GREEN = new Color(0f, 0.5f, 0f, 1f);
+
     private void Start()
     {
-        gameFinished = false;
+        gameState = GameState.START;
         deactivators = GridGenerator.MINES;
         endGameText.text = "";
         deactivatorsLeft.text = deactivators + MINES_TEXT;
     }
 
     private Vector3? lastMousePosition;
-    void Update()
+    private void CameraMovement()
     {
-        if(Input.GetMouseButton(2))
+        if (Input.GetMouseButton(2))
         {
             Vector3 current = Input.mousePosition;
             Vector3 last = lastMousePosition ?? current;
@@ -38,8 +41,8 @@ public class PlayerController : MonoBehaviour
             Camera.main.transform.RotateAround(gridCentre, Vector3.up, -difference.x);
 
             float verticalRotation = Camera.main.transform.rotation.eulerAngles.x;
-            
-            if (((difference.y > 0) && (verticalRotation < ROTATION_LIMIT || verticalRotation > 180.0f)) || ((difference.y < 0) && (verticalRotation > (360.0f-ROTATION_LIMIT) || verticalRotation < 180.0f)))
+
+            if (((difference.y > 0) && (verticalRotation < ROTATION_LIMIT || verticalRotation > 180.0f)) || ((difference.y < 0) && (verticalRotation > (360.0f - ROTATION_LIMIT) || verticalRotation < 180.0f)))
             {
                 Camera.main.transform.RotateAround(gridCentre, transform.TransformDirection(Vector3.right), difference.y);
             }
@@ -49,8 +52,11 @@ public class PlayerController : MonoBehaviour
             lastMousePosition = null;
         }
         Camera.main.transform.Translate(Vector3.forward * Input.mouseScrollDelta.y * ZOOM_SPEED);
+    }
 
-        if (!gameFinished)
+    private void PlayerAction()
+    {
+        if (gameState <= GameState.ONGOING)
         {
             bool leftClick = Input.GetMouseButtonDown(0);
             bool rightClick = Input.GetMouseButtonDown(1);
@@ -61,17 +67,16 @@ public class PlayerController : MonoBehaviour
                 if (Physics.Raycast(ray, out hit))
                 {
                     CellController controller = hit.transform.GetComponent<CellController>();
-                    if (firstClick)
+                    if (gameState == GameState.START)
                     {
-                        firstClick = false;
+                        gameState = GameState.ONGOING;
                         GridGenerator.PlantMines(controller);
                     }
                     if (leftClick)
                     {
                         if (!controller.Reveal())
                         {
-                            endGameText.text = LOSE_TEXT;
-                            gameFinished = true;
+                            gameState = GameState.LOSE;
                         }
                     }
                     else if (rightClick)
@@ -80,18 +85,38 @@ public class PlayerController : MonoBehaviour
                         if (controller.DeactivateMine())
                         {
                             deactivatorsLeft.text = deactivators + MINES_TEXT;
-                            gameFinished = (deactivators == 0);
-                            if (gameFinished)
-                                endGameText.text = WIN_TEXT;
+                            gameState = (deactivators == 0) ? GameState.WIN : GameState.ONGOING;
                         }
                         else
                         {
-                            endGameText.text = LOSE_TEXT;
-                            gameFinished = true;
+                            gameState = GameState.LOSE;
                         }
                     }
                 }
             }
         }
+    }
+
+    private void ShowEndGameText()
+    {
+        if (gameState == GameState.WIN)
+        {
+            endGameText.text = WIN_TEXT;
+            endGameText.color = DARK_GREEN;
+            GridGenerator.ClearCells();
+        }
+        else if (gameState == GameState.LOSE)
+        {
+            endGameText.text = LOSE_TEXT;
+            endGameText.color = DARK_RED;
+            GridGenerator.RevealMines();
+        }
+    }
+
+    void Update()
+    {
+        CameraMovement();
+        PlayerAction();
+        ShowEndGameText();
     }
 }

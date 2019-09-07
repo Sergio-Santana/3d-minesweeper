@@ -95,4 +95,24 @@ public class GridGenerator : MonoBehaviour
             }
         }
     }
+
+    public static void RevealMines()
+    {
+        ref CellController[,,] cells = ref instance.cells;
+
+        foreach (CellController cc in cells)
+        {
+            cc.ShowMineContent();
+        }
+    }
+
+    public static void ClearCells()
+    {
+        ref CellController[,,] cells = ref instance.cells;
+
+        foreach (CellController cc in cells)
+        {
+            cc.Clear();
+        }
+    }
 }

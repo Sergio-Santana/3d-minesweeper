@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class CellController : MonoBehaviour
@@ -12,12 +11,12 @@ public class CellController : MonoBehaviour
     private const float fadeSpeed = 3.0f;
     private const float transparentAlpha = 0.1f;
 
-    private readonly Color GRAY_SOLID = new Color(0.45f, 0.45f, 0.45f, 1f);
-    private readonly Color DARKGRAY_SOLID = new Color(0.2f, 0.2f, 0.2f, 1f);
-    private readonly Color RED_TRANSPARENT = new Color(1, 0, 0, transparentAlpha);
-    private readonly Color GREEN_TRANSPARENT = new Color(0, 1, 0, transparentAlpha);
-    private readonly Color WHITE_TRANSPARENT = new Color(1, 1, 1, transparentAlpha);
-
+    private static readonly Color GRAY_SOLID = new Color(0.45f, 0.45f, 0.45f, 1f);
+    private static readonly Color DARKGRAY_SOLID = new Color(0.2f, 0.2f, 0.2f, 1f);
+    private static readonly Color RED_SOLID = new Color(1, 0, 0, 1f);
+    private static readonly Color GREEN_SOLID = new Color(0, 1, 0, 1f);
+    private static readonly Color YELLOW_SOLID = new Color(1, 1, 0, 1f);
+    private static readonly Color WHITE_SOLID = new Color(1, 1, 1, transparentAlpha);
 
     [HideInInspector]
     public uint neighbouringMines = 0;
@@ -45,6 +44,20 @@ public class CellController : MonoBehaviour
         }
     }
 
+    private void ShowText()
+    {
+        if (neighbouringMines == 0)
+        {
+            StartCoroutine(FadeOutFromFull());
+            interiorMesh.text = "";
+        }
+        else
+        {
+            StartCoroutine(FadeToAlpha(transparentAlpha));
+            interiorMesh.text = neighbouringMines.ToString();
+        }
+    }
+
     public bool Reveal()
     {
         if (revealed) return true;
@@ -53,20 +66,12 @@ public class CellController : MonoBehaviour
 
         if (hasMine)
         {
-            material.color = RED_TRANSPARENT;
+            material.color = RED_SOLID;
             return false;
         }
 
-        material.color = WHITE_TRANSPARENT;
-        if (neighbouringMines == 0)
-        {
-            StartCoroutine(FadeOutFromFull());
-            interiorMesh.text = "";
-        }
-        else
-        {
-            interiorMesh.text = neighbouringMines.ToString();
-        }
+        material.color = WHITE_SOLID;
+        ShowText();
         return true;
     }
 
@@ -78,16 +83,17 @@ public class CellController : MonoBehaviour
 
         if (hasMine)
         {
-            material.color = GREEN_TRANSPARENT;
+            hasMine = false;
+            material.color = GREEN_SOLID;
             GridGenerator.ApplyToNeighbours(position.x, position.y, position.z, x => x.DecreaseCounter());
-            StartCoroutine(FadeOutFromFull());
+            ShowText();
+            return true;
         }
         else
         {
-            material.color = RED_TRANSPARENT;
+            material.color = YELLOW_SOLID;
+            return false;
         }
-
-        return hasMine;
     }
 
     private void DecreaseCounter()
@@ -107,16 +113,53 @@ public class CellController : MonoBehaviour
         }
     }
 
+    public void Clear()
+    {
+        GetComponent<BoxCollider>().enabled = false;
+        revealed = true;
+        StartCoroutine(FadeOutFromFull());
+    }
+
+    public void ShowMineContent()
+    {
+        if (!revealed)
+        {
+            revealed = true;
+            if (hasMine)
+            {
+                material.color = RED_SOLID;
+            }
+            else
+            {
+                StartCoroutine(FadeToAlpha(transparentAlpha));
+            }
+        }
+    }
+
     IEnumerator FadeOutFromFull()
     {
         Color color = material.color;
         color.a = 1f;
-        for ( ; color.a > 0; color.a -= Time.deltaTime * fadeSpeed)
+        for (; color.a > 0; color.a -= Time.deltaTime * fadeSpeed)
         {
             material.color = color;
             yield return null;
         }
 
         GetComponent<Renderer>().enabled = false;
+    }
+
+    IEnumerator FadeToAlpha(float alpha)
+    {
+        Color color = material.color;
+        color.a = 1f;
+        for (; color.a > alpha; color.a -= Time.deltaTime * fadeSpeed)
+        {
+            material.color = color;
+            yield return null;
+        }
+
+        color.a = alpha;
+        material.color = color;
     }
 }
