@@ -18,7 +18,7 @@ public class GridGenerator : MonoBehaviour
     public const uint MAX_Z = 5;
 
     private const float CUBE_DIMENSIONS = 1f;
-    private const float SPACE_BETWEEN_CELLS = 0.1f;
+    private const float SPACE_BETWEEN_CELLS = 0.05f;
 
     void Start()
     {
@@ -30,20 +30,21 @@ public class GridGenerator : MonoBehaviour
         cells = new CellController[MAX_X, MAX_Y, MAX_Z];
 
         float cubeOffSet = CUBE_DIMENSIONS + SPACE_BETWEEN_CELLS;
-        // TODO: Create vector int here at the beginning
-        for (int x = 0; x < MAX_X; ++x)
+        Vector3Int position = Vector3Int.zero;
+        for (position.x = 0; position.x < MAX_X; ++position.x)
         {
-            for (int y = 0; y < MAX_Y; ++y)
+            for (position.y = 0; position.y < MAX_Y; ++position.y)
             {
-                for (int z = 0; z < MAX_Z; ++z)
+                for (position.z = 0; position.z < MAX_Z; ++position.z)
                 {
-                    Vector3Int position = new Vector3Int(x, y, z);
                     GameObject go = Instantiate(CellPrefab, (Vector3)position * cubeOffSet, Quaternion.identity, this.transform);
-                    cells[x, y, z] = go.GetComponent<CellController>();
-                    cells[x, y, z].position = position;
+                    CellController cc = go.GetComponent<CellController>();
+                    cc.position = position;
+                    cells[position.x, position.y, position.z] = go.GetComponent<CellController>();
                 }
             }
         }
+
         Vector3 cameraPosition = Camera.main.transform.position;
         Camera.main.transform.position = new Vector3(cameraPosition.x, cameraPosition.y + MAX_Y*cubeOffSet, cameraPosition.z);
         gridCentre = new Vector3(MAX_X, MAX_Y, MAX_Z);
